@@ -17,7 +17,7 @@ public class Player extends Entity{
 	private boolean jumping = false;
 	private CatmullRomSpline<Vector2> jumpAngle;
 	protected float current = 0;
-	private int speed = 160;
+	private int speed = 100;
 	private GameScreen gameScreen;
 	private int xOffset;
 	private float lastCurrent = 0;
@@ -51,7 +51,7 @@ public class Player extends Entity{
 			        	this.sprite = jumpLeftSprite;
 			        }
 			        jumping = true;
-			        jumpSound.play();
+			        if ((gameScreen.score / 10) < 1800) jumpSound.play();
 			        jumpAngle = new CatmullRomSpline<Vector2>(new Vector2[] {
 			        new Vector2((float) midX, (float)y), touchPos, landingGoal}, true);
 			        current = 0;
@@ -109,6 +109,9 @@ public class Player extends Entity{
 	}
 	public double getTopY() {
 		return y + height;
+	}
+	public void increaseSpeed(int increase) {
+		speed += increase;
 	}
 
 }

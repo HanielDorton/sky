@@ -7,7 +7,7 @@ public class MidWall extends Entity{
 	
 	
 	
-	public MidWall(int x, int y, boolean solid) {
+	public MidWall(int x, double y, boolean solid) {
 		this.x = x;
 		this.y = y;
 		this.width = 20;

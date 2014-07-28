@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class RightWall extends Entity{
 	
-	public RightWall(int x, int y, boolean solid) {
+	public RightWall(int x, double y, boolean solid) {
 		this.x = x;
 		this.y = y;
 		this.width = 20;

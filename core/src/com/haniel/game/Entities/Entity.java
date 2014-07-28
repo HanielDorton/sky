@@ -93,6 +93,7 @@ public abstract class Entity {
 	public void update(float difficulty) {
 		this.y -= difficulty * Gdx.graphics.getDeltaTime();
 		this.rectangle = new Rectangle((float) x, (float) y + height - 10, width, 10);
+		if (this.y <= 0 - (this.width * 2)) remove();
 	}
 	
 	public Sprite getSprite() {

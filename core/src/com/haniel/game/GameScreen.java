@@ -7,6 +7,7 @@ import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.haniel.game.Entities.Entity;
@@ -27,8 +28,17 @@ public class GameScreen implements Screen{
     public int height = 480;
     private Random rand = new Random();
     private float difficulty = 30;
+    private float difficultyIncreaseBar = 1;
+    private float countToIncreaseDifficulty = 0;
     private float meters = 0;
-    private int score = 0;
+    public float score = 0;
+    private float difficultyIncrease = 20;
+    private RightWall lastBrick;
+    private boolean addedSingle;
+    private float green = 0.9f;
+    private float blue = 1;
+    protected Music backgroundMusic;
+    
 	
 	public GameScreen(final Sky gam) {
     	this.game = gam;  
@@ -39,9 +49,12 @@ public class GameScreen implements Screen{
 	}
 
 	public void render(float delta) {
-		Gdx.gl.glClearColor(0, 204, 255, 1);
+		Gdx.gl.glClearColor(0, green, blue, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		camera.update();
+		Sky.batch.setProjectionMatrix(camera.combined);
 		Sky.batch.begin();
+		
 		drawEntities();
 		Sky.batch.draw(player.getSprite(), (float) player.getX(), (float) player.getY());
 		Sky.batch.end();
@@ -49,6 +62,10 @@ public class GameScreen implements Screen{
 		player.update();
 		updateEntities(difficulty);
 		updateMeters();
+		updateDifficulty();
+		continueBuilding();
+		if (blue > 0) updateColors();
+		checkMusic();
 		
 	}
 
@@ -58,9 +75,10 @@ public class GameScreen implements Screen{
 		
 	}
 
-	@Override
 	public void show() {
-		// TODO Auto-generated method stub
+		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("LittlePeopleAtWork.mp3"));
+		backgroundMusic.setVolume(.5f);
+		backgroundMusic.play();
 		
 	}
 
@@ -88,17 +106,57 @@ public class GameScreen implements Screen{
 		
 	}
 	
+	private void checkMusic() {
+		if ((score / 10) > 1900 && (score / 10) < 1950) {
+			backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("WorldTravel_0.mp3"));
+			backgroundMusic.setVolume(.1f);
+			backgroundMusic.play();
+		}
+	}
+
+	private void updateColors() {
+		green -= (Gdx.graphics.getDeltaTime() * difficulty * .00005);
+		blue -= (Gdx.graphics.getDeltaTime() * difficulty * .00005);
+		if (green < 0) green = 0;
+		if (blue < 0) blue = 0;
+	}
+	
+	private void continueBuilding() {
+		if (lastBrick.getY() <= 480) {
+			double tempY = lastBrick.getY();
+			addedSingle = false;
+			for (int i = 0; i < 10; i++) {
+				addBlankWall(tempY + 20 + (i*20), difficulty);
+			}
+			if (!addedSingle) addSingleLedge(tempY + 100);
+		}	
+	}
+	
 	private void updateMeters() {
 		meters += difficulty * Gdx.graphics.getDeltaTime();
 		if (player.getTopY() + meters > score) score = (int) (player.getTopY() + meters);
-		System.out.println("Meters: " + (score / 20));
+		//System.out.println("Meters: " + (score / 10) + " Difficulty: "+ difficulty);
+	}
+	
+	private void updateDifficulty() {
+		countToIncreaseDifficulty += Gdx.graphics.getDeltaTime();
+		if (countToIncreaseDifficulty > difficultyIncreaseBar) {
+			difficultyIncreaseBar++;
+			countToIncreaseDifficulty = 0;
+			difficulty+=difficultyIncrease;
+			difficultyIncrease*=.90;
+			player.increaseSpeed((int)difficultyIncrease); 
+		}		
 	}
 	
 	private void updateEntities(float difficulty) {
     	Iterator<Entity> entityIterator = entities.iterator();
     	while (entityIterator.hasNext()) {
     		Entity e = entityIterator.next();
-        	e.update(difficulty);        	
+        	e.update(difficulty);
+        	if (e.isRemoved()) {
+        		entityIterator.remove();
+        	}
     	}
     	//if player is standing on a ledge, move him down same speed as ledge
     	if (!player.isJumping()) {
@@ -123,27 +181,33 @@ public class GameScreen implements Screen{
         for (int i = 0; i < 17; i++) {
         	add(new GrassTile(i * 20,0));
         }
-        for (int i = 0; i < 36; i++) {
-        	addBlankWall(20 + (i * 20));
+        for (int i = 0; i < 26; i++) {
+        	addBlankWall(20 + (i * 20), difficulty);
         }
     }
-    //stage is 16 squares of 20 across
-    //lets do borders of 2
-    //so 12 rows starting at 40
-
     
-    private void addBlankWall(int y) {
-    	add(new LeftWall(40, y, false));
+    private void addBlankWall(double d, float difficulty) {
+    	add(new LeftWall(40, d, false));
     	for (int i = 0; i < 10; i++) {
-    		add(new MidWall(60 + (20 * i), y, false));
+    		add(new MidWall(60 + (20 * i), d, false));
     	}
-    	add(new RightWall(260, y, false));
-    	if (rand.nextInt(5) == 4) addSingleLedge(y);
-    	if (rand.nextInt(10) == 9) addDoubleLedge(y);
-    	if (rand.nextInt(30) == 29) addTripleLedge(y);
+    	lastBrick = new RightWall(260, d, false);
+    	add(lastBrick);
+    	if (rand.nextInt(5 + ((int) difficulty / 50)) == 4) { 
+    		addSingleLedge(d);
+    		addedSingle = true;
+    	}
+    	if (rand.nextInt(10 + ((int) difficulty / 50)) == 9) {
+    		addDoubleLedge(d);
+    		addedSingle = true;
+    	}
+    	if (rand.nextInt(30 + ((int) difficulty / 50)) == 29) {
+    		addTripleLedge(d);
+    		addedSingle = true;
+    	}
     }
     
-    private void addSingleLedge(int y) {
+    private void addSingleLedge(double y) {
     	int ledge = rand.nextInt(12);
     	switch (ledge) {
     	case 0: {
@@ -162,7 +226,7 @@ public class GameScreen implements Screen{
 
     }
     
-    private void addDoubleLedge(int y) {
+    private void addDoubleLedge(double y) {
     	int ledge = rand.nextInt(11);
     	switch (ledge) {
 	    	case 0: {
@@ -182,7 +246,7 @@ public class GameScreen implements Screen{
     	}
     }
     
-    private void addTripleLedge(int y) {
+    private void addTripleLedge(double y) {
     	int ledge = rand.nextInt(10);
     	switch (ledge) {
 	    	case 0: {
