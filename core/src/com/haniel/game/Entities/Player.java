@@ -20,6 +20,7 @@ public class Player extends Entity{
 	private int speed = 160;
 	private GameScreen gameScreen;
 	private int xOffset;
+	private float lastCurrent = 0;
 	
 	public Player(GameScreen gameScreen) {
 		this.x = 145;
@@ -28,28 +29,31 @@ public class Player extends Entity{
 		this.width = 19;
 		this.height = 46;
 		this.sprite = standSprite;
-		this.rectangle = new Rectangle((float) x + xOffset, (float) y, width, 3);
+		this.rectangle = new Rectangle((float) x + xOffset, (float) y, width, 5);
 		this.gameScreen = gameScreen;
 	}
 	
+	//everything is ging by x,y in bottom right corner, need to change to middle!
+	
 	public void update() {
+		int midX = (int) x + xOffset + (width / 2);
 		if (!jumping) {
 			if (Gdx.input.isTouched()) {
 		        Vector2 touchPos = new Vector2();
 		        touchPos.set(Gdx.input.getX(), 480 - Gdx.input.getY());
 		        Vector2 landingGoal = new Vector2();
 		        if( touchPos.y > y+30) {
-			        if (touchPos.x >= x){
-			        	landingGoal.set( (float) (x + ((touchPos.x - x)*2)), -50);	
+			        if (touchPos.x >= midX){
+			        	landingGoal.set( (float) (midX + ((touchPos.x - midX)*2)), -50);	
 			        	this.sprite = jumpRightSprite;
 			        } else {
-			        	landingGoal.set( (float) ( x - (x - touchPos.x)*2), -50);
+			        	landingGoal.set( (float) ( midX - (midX - touchPos.x)*2), -50);
 			        	this.sprite = jumpLeftSprite;
 			        }
 			        jumping = true;
 			        jumpSound.play();
 			        jumpAngle = new CatmullRomSpline<Vector2>(new Vector2[] {
-			        new Vector2((float) x, (float)y), touchPos, landingGoal}, true);
+			        new Vector2((float) midX, (float)y), touchPos, landingGoal}, true);
 			        current = 0;
 		        }
 		    }
@@ -59,23 +63,29 @@ public class Player extends Entity{
 			jumpAngle.derivativeAt(out1, current);
 			current += (Gdx.graphics.getDeltaTime() * speed) / out1.len();
 			if(current >= 1) current -= 1;
+			if (current - lastCurrent > .03) {
+				current = lastCurrent + .02f;
+			}
+			lastCurrent = current;			
 			Vector2 out = new Vector2();
 			jumpAngle.valueAt(out, current);
-			this.x = out.x;
+			this.x = out.x - xOffset - (width / 2);
 			this.y = out.y;
-		    rectangle.setPosition((float)x + xOffset, (float)y);
-			Iterator<Entity> entityIterator = gameScreen.entities.iterator();
-	    	while (entityIterator.hasNext()) {
-	    		Entity e = entityIterator.next();
-	    		if (e.isSolid()){
-		    		if (e.getRectangle().overlaps(rectangle)) {
-						jumping = false;
-						this.sprite = standSprite;
-						this.y = e.getY() + e.getHeight();
-		    			
+			if (current > .24) {
+				setPosition();
+				Iterator<Entity> entityIterator = gameScreen.entities.iterator();
+		    	while (entityIterator.hasNext()) {
+		    		Entity e = entityIterator.next();
+		    		if (e.isSolid()){
+			    		if (e.getRectangle().overlaps(rectangle)) {
+							jumping = false;
+							this.sprite = standSprite;
+							this.y = e.getY() + e.getHeight();
+			    			
+			    		}
 		    		}
-	    		}
-	    	}
+		    	}
+			}
 			
 			
 		}
@@ -85,7 +95,20 @@ public class Player extends Entity{
 			jumping = false;
 			this.sprite = standSprite;
 		}
-	    rectangle.setPosition((float)x + xOffset, (float)y);
+		setPosition();
+	}
+	
+	public boolean isJumping() {
+		return jumping;
+	}
+	public void setPosition() {
+		rectangle.setPosition((float)x + xOffset, (float)y);
+	}
+	public void movePlayerDown(float difficulty) {
+		y -= difficulty * Gdx.graphics.getDeltaTime();
+	}
+	public double getTopY() {
+		return y + height;
 	}
 
 }

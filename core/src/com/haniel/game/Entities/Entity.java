@@ -1,5 +1,7 @@
 package com.haniel.game.Entities;
 
+import java.util.Random;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +16,7 @@ public abstract class Entity {
 	protected Rectangle rectangle;
 	protected boolean removed = false;
 	protected boolean solid = false;
+	protected static final Random rand = new Random();
 	
 	//Player
 	protected static final Texture playerTexture = new Texture(Gdx.files.internal("alienPink.png"));
@@ -23,6 +26,16 @@ public abstract class Entity {
 	
 	//World
 	protected static final Texture grassTexture = new Texture(Gdx.files.internal("grassMid.png"));
+	
+	//Building
+	protected static final Texture blankWallTexture = new Texture(Gdx.files.internal("houseDark.png"));
+	protected static final Texture blankWallTexture2 = new Texture(Gdx.files.internal("houseDarkAlt.png"));
+	protected static final Texture blankWallTexture3 = new Texture(Gdx.files.internal("houseDarkAlt2.png"));
+	protected static final Texture midLedgeTexture = new Texture(Gdx.files.internal("houseDarkLedge.png"));
+	protected static final Texture leftLedgeTexture = new Texture(Gdx.files.internal("houseDarkLedgeLeft.png"));
+	protected static final Texture rightLedgeTexture = new Texture(Gdx.files.internal("houseDarkLedgeRight.png"));
+	protected static final Texture blankRightWallTexture = new Texture(Gdx.files.internal("houseDarkMidRight.png"));
+	protected static final Texture blankLeftWallTexture = new Texture(Gdx.files.internal("houseDarkMidLeft.png"));
 	
 	
 	public Entity() {
@@ -77,8 +90,9 @@ public abstract class Entity {
 	public boolean isRemoved() {
 		return removed;
 	}
-	public void update() {
-		
+	public void update(float difficulty) {
+		this.y -= difficulty * Gdx.graphics.getDeltaTime();
+		this.rectangle = new Rectangle((float) x, (float) y + height - 10, width, 10);
 	}
 	
 	public Sprite getSprite() {
