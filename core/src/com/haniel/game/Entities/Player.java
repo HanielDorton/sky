@@ -3,10 +3,12 @@ package com.haniel.game.Entities;
 import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.CatmullRomSpline;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.haniel.game.GameScreen;
 
 public class Player extends Entity{
@@ -21,8 +23,9 @@ public class Player extends Entity{
 	private GameScreen gameScreen;
 	private int xOffset;
 	private float lastCurrent = 0;
+	private OrthographicCamera camera;
 	
-	public Player(GameScreen gameScreen) {
+	public Player(GameScreen gameScreen,  OrthographicCamera camera) {
 		this.x = 145;
 		this.y = 20;
 		this.xOffset = 7;
@@ -30,6 +33,7 @@ public class Player extends Entity{
 		this.height = 46;
 		this.sprite = standSprite;
 		this.rectangle = new Rectangle((float) x + xOffset, (float) y, width, 5);
+		this.camera = camera;
 		this.gameScreen = gameScreen;
 	}
 	
@@ -39,8 +43,8 @@ public class Player extends Entity{
 		int midX = (int) x + xOffset + (width / 2);
 		if (!jumping) {
 			if (Gdx.input.isTouched()) {
-		        Vector2 touchPos = new Vector2();
-		        touchPos.set(Gdx.input.getX(), 480 - Gdx.input.getY());
+		        Vector3 touchPos = new Vector3();
+		        camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 		        Vector2 landingGoal = new Vector2();
 		        if( touchPos.y > y+30) {
 			        if (touchPos.x >= midX){
@@ -51,9 +55,9 @@ public class Player extends Entity{
 			        	this.sprite = jumpLeftSprite;
 			        }
 			        jumping = true;
-			        if ((gameScreen.score / 10) < 1800) jumpSound.play();
+			        jumpSound.play();
 			        jumpAngle = new CatmullRomSpline<Vector2>(new Vector2[] {
-			        new Vector2((float) midX, (float)y), touchPos, landingGoal}, true);
+			        new Vector2((float) midX, (float)y), new Vector2(touchPos.x, touchPos.y), landingGoal}, true);
 			        current = 0;
 		        }
 		    }
@@ -90,10 +94,14 @@ public class Player extends Entity{
 			
 		}
 		if (x < 0 - width || x > 320 || y < 0 - height) {
-			x = 145;
-			y = 20;
-			jumping = false;
-			this.sprite = standSprite;
+			if (gameScreen.debug) {
+				x = 145;
+				y = 20;
+				jumping = false;
+				this.sprite = standSprite;
+			} else {
+				gameScreen.death();
+			}
 		}
 		setPosition();
 	}

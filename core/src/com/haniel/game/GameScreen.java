@@ -20,10 +20,12 @@ import com.haniel.game.Entities.RightWall;
 
 public class GameScreen implements Screen{
 	
+	
 	OrthographicCamera camera;
 	final Sky game;
 	public List<Entity> entities = new ArrayList<Entity>();
-    public Player player = new Player(this); 
+	public List<BackGround> backgrounds = new ArrayList<BackGround>();
+    public Player player; 
     public int width = 320;
     public int height = 480;
     private Random rand = new Random();
@@ -38,12 +40,15 @@ public class GameScreen implements Screen{
     private float green = 0.9f;
     private float blue = 1;
     protected Music backgroundMusic;
+    private boolean addedStars = false;
+    public boolean debug = false;
     
 	
-	public GameScreen(final Sky gam) {
-    	this.game = gam;  
-    	camera = new OrthographicCamera();
-        camera.setToOrtho(false, 320, 480);
+	public GameScreen(final Sky gam, OrthographicCamera camera) {
+    	this.game = gam;
+    	this.camera = camera;
+    	this.player  = new Player(this, camera);    	
+        camera.setToOrtho(true, 320, 480);
         createStage();
   
 	}
@@ -54,24 +59,21 @@ public class GameScreen implements Screen{
 		camera.update();
 		Sky.batch.setProjectionMatrix(camera.combined);
 		Sky.batch.begin();
+		drawBackGround();
 		
 		drawEntities();
 		Sky.batch.draw(player.getSprite(), (float) player.getX(), (float) player.getY());
+		drawText();
 		Sky.batch.end();
 		
 		player.update();
-		updateEntities(difficulty);
+		if (difficulty > 30) updateEntities(difficulty);
 		updateMeters();
 		updateDifficulty();
 		continueBuilding();
 		if (blue > 0) updateColors();
-		checkMusic();
-		
-	}
-
-	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
+		levelLogic();
+		System.out.println(entities.size());
 		
 	}
 
@@ -106,7 +108,25 @@ public class GameScreen implements Screen{
 		
 	}
 	
-	private void checkMusic() {
+	public void resize(int width, int height) {
+	    camera.setToOrtho(false, width, height);
+	}
+	
+	private void drawText() {
+		game.font.draw(Sky.batch, "Meters: " + ( score / 100), 10, 470);
+	}
+	
+	public void death() {
+		//game.setScreen(new HighScoresScreen(game, camera));
+	}
+	
+	private void levelLogic() {
+		if (( score / 10) > 1500) {
+			difficultyIncrease = 0;
+			if (!addedStars) {
+				addedStars = true;
+			}
+		}
 		if ((score / 10) > 1900 && (score / 10) < 1950) {
 			backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("WorldTravel_0.mp3"));
 			backgroundMusic.setVolume(.1f);
@@ -162,6 +182,14 @@ public class GameScreen implements Screen{
     	if (!player.isJumping()) {
     		player.movePlayerDown(difficulty);
     		player.setPosition();
+    	}
+	}
+	
+	private void drawBackGround() {
+		Iterator<BackGround> backgroundsIterator = backgrounds.iterator();
+    	while (backgroundsIterator.hasNext()) {
+    		BackGround e = backgroundsIterator.next();
+    		Sky.batch.draw(e.getSprite(), (float) e.getX(), (float) e.getY());
     	}
 	}
 	
