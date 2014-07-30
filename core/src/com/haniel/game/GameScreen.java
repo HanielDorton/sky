@@ -8,10 +8,12 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.haniel.game.Backgrounds.Background;
 import com.haniel.game.Backgrounds.Field;
+import com.haniel.game.Backgrounds.Moon;
 import com.haniel.game.Backgrounds.Star;
 import com.haniel.game.Backgrounds.Tower;
 import com.haniel.game.Entities.Entity;
@@ -45,10 +47,12 @@ public class GameScreen implements Screen{
     private float green = 0.9f;
     private float blue = 1;
     protected Music backgroundMusic;
+    //level logic booleans
     private boolean addedStars = false;
     public boolean debug = false;
     private boolean addedFirstMusic = false;
-    
+    private boolean playedAlien = false;
+    private Music alienMusic = Gdx.audio.newMusic(Gdx.files.internal("ObservingTheStar.ogg"));
 	
 	public GameScreen(final Sky gam, OrthographicCamera camera) {
     	this.game = gam;
@@ -139,11 +143,20 @@ public class GameScreen implements Screen{
 			}
 		}
 		if (!addedFirstMusic) {
-			if ((score / 100) > 190) {
+			if ((score / 100) > 170) {
 				addedFirstMusic = true;
 				backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("WorldTravel_0.mp3"));
 				backgroundMusic.setVolume(.1f);
 				backgroundMusic.play();
+				add(new Moon(285, 480, 5));
+			}
+		}
+		if (!playedAlien) {
+			if ((score / 100) > 350) {
+				alienMusic.setLooping(true);
+				alienMusic.setVolume(.5f);
+				alienMusic.play();
+				playedAlien = true;				
 			}
 		}
 	}
@@ -190,8 +203,10 @@ public class GameScreen implements Screen{
         	b.update();
         	if (b.isRemoved()) {        		
         		if (b instanceof Star) {
-        			tempBackgrounds.add(new Star(rand.nextInt(40), rand.nextInt(height) + 480, rand.nextInt(10) ));
-					tempBackgrounds.add(new Star(rand.nextInt(40) + 280, rand.nextInt(height) + 480, rand.nextInt(10)));
+        			if (backgrounds.size() < 200) {
+	        			tempBackgrounds.add(new Star(rand.nextInt(40), rand.nextInt(height) + 480, rand.nextInt(10) ));
+						tempBackgrounds.add(new Star(rand.nextInt(40) + 280, rand.nextInt(height) + 480, rand.nextInt(10)));
+        			}
         		}
         		backgroundIterator.remove();
         	}

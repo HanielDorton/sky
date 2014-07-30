@@ -17,6 +17,7 @@ public abstract class Background {
 	protected static final Texture towerTexture = new Texture(Gdx.files.internal("tower.png"));
 	protected static final Texture fieldTexture = new Texture(Gdx.files.internal("field.png"));
 	protected static final Texture starTexture = new Texture(Gdx.files.internal("star.png"));
+	protected static final Texture moonTexture = new Texture(Gdx.files.internal("Moon.png"));
 	
 	public Background(double x, double y, double moveY) {
 		this.x = x;

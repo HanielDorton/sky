@@ -26,6 +26,7 @@ public abstract class Entity {
 	
 	//World
 	protected static final Texture grassTexture = new Texture(Gdx.files.internal("grassMid.png"));
+	protected static final Texture moonTexture = new Texture(Gdx.files.internal("Moon.png"));
 	
 	//Building
 	
