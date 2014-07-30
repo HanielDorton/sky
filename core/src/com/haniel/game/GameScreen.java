@@ -10,6 +10,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.haniel.game.Backgrounds.Background;
+import com.haniel.game.Backgrounds.Field;
+import com.haniel.game.Backgrounds.Star;
+import com.haniel.game.Backgrounds.Tower;
 import com.haniel.game.Entities.Entity;
 import com.haniel.game.Entities.GrassTile;
 import com.haniel.game.Entities.LeftWall;
@@ -24,7 +28,8 @@ public class GameScreen implements Screen{
 	OrthographicCamera camera;
 	final Sky game;
 	public List<Entity> entities = new ArrayList<Entity>();
-	public List<BackGround> backgrounds = new ArrayList<BackGround>();
+	public List<Background> backgrounds = new ArrayList<Background>();
+	public List<Background> tempBackgrounds = new ArrayList<Background>();
     public Player player; 
     public int width = 320;
     public int height = 480;
@@ -42,6 +47,7 @@ public class GameScreen implements Screen{
     protected Music backgroundMusic;
     private boolean addedStars = false;
     public boolean debug = false;
+    private boolean addedFirstMusic = false;
     
 	
 	public GameScreen(final Sky gam, OrthographicCamera camera) {
@@ -59,8 +65,7 @@ public class GameScreen implements Screen{
 		camera.update();
 		Sky.batch.setProjectionMatrix(camera.combined);
 		Sky.batch.begin();
-		drawBackGround();
-		
+		drawBackGround();		
 		drawEntities();
 		Sky.batch.draw(player.getSprite(), (float) player.getX(), (float) player.getY());
 		drawText();
@@ -68,13 +73,13 @@ public class GameScreen implements Screen{
 		
 		player.update();
 		if (difficulty > 30) updateEntities(difficulty);
+		updateBackgrounds();
 		updateMeters();
 		updateDifficulty();
 		continueBuilding();
 		if (blue > 0) updateColors();
 		levelLogic();
-		System.out.println(entities.size());
-		
+		System.out.println(backgrounds.size());
 	}
 
 	public void show() {
@@ -121,16 +126,25 @@ public class GameScreen implements Screen{
 	}
 	
 	private void levelLogic() {
-		if (( score / 10) > 1500) {
+		if (( score / 100) > 150) {
 			difficultyIncrease = 0;
-			if (!addedStars) {
+		}
+		if (!addedStars) {
+			if (( score / 100) > 120)  {
 				addedStars = true;
+				for (int i = 0; i < 70; i ++) {
+					add(new Star(rand.nextInt(40), rand.nextInt(height) + 480, rand.nextInt(10) ));
+					add(new Star(rand.nextInt(40) + 280, rand.nextInt(height) + 480, rand.nextInt(10)));
+				}
 			}
 		}
-		if ((score / 10) > 1900 && (score / 10) < 1950) {
-			backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("WorldTravel_0.mp3"));
-			backgroundMusic.setVolume(.1f);
-			backgroundMusic.play();
+		if (!addedFirstMusic) {
+			if ((score / 100) > 190) {
+				addedFirstMusic = true;
+				backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("WorldTravel_0.mp3"));
+				backgroundMusic.setVolume(.1f);
+				backgroundMusic.play();
+			}
 		}
 	}
 
@@ -169,6 +183,27 @@ public class GameScreen implements Screen{
 		}		
 	}
 	
+	private void updateBackgrounds() {
+		Iterator<Background> backgroundIterator = backgrounds.iterator();
+    	while (backgroundIterator.hasNext()) {
+    		Background b = backgroundIterator.next();
+        	b.update();
+        	if (b.isRemoved()) {        		
+        		if (b instanceof Star) {
+        			tempBackgrounds.add(new Star(rand.nextInt(40), rand.nextInt(height) + 480, rand.nextInt(10) ));
+					tempBackgrounds.add(new Star(rand.nextInt(40) + 280, rand.nextInt(height) + 480, rand.nextInt(10)));
+        		}
+        		backgroundIterator.remove();
+        	}
+    	}
+    	if (tempBackgrounds.size() > 0) {
+    		for (Background b: tempBackgrounds) {
+    			backgrounds.add(b);    			
+    		}
+    		tempBackgrounds.clear();
+    	}
+	}
+	
 	private void updateEntities(float difficulty) {
     	Iterator<Entity> entityIterator = entities.iterator();
     	while (entityIterator.hasNext()) {
@@ -186,9 +221,9 @@ public class GameScreen implements Screen{
 	}
 	
 	private void drawBackGround() {
-		Iterator<BackGround> backgroundsIterator = backgrounds.iterator();
+		Iterator<Background> backgroundsIterator = backgrounds.iterator();
     	while (backgroundsIterator.hasNext()) {
-    		BackGround e = backgroundsIterator.next();
+    		Background e = backgroundsIterator.next();
     		Sky.batch.draw(e.getSprite(), (float) e.getX(), (float) e.getY());
     	}
 	}
@@ -203,9 +238,16 @@ public class GameScreen implements Screen{
 	
     public void add(Entity e) {
     	entities.add(e);
+    } 
+    
+    public void add(Background b) {
+    	backgrounds.add(b);
     }  
 	
     private void createStage() {
+    	add(new Tower(40, 0, 0));
+    	add(new Field(0, -2, 1));
+    	add(new Field(280, -2, 1));
         for (int i = 0; i < 17; i++) {
         	add(new GrassTile(i * 20,0));
         }
@@ -216,11 +258,11 @@ public class GameScreen implements Screen{
     
     private void addBlankWall(double d, float difficulty) {
     	add(new LeftWall(40, d, false));
-    	for (int i = 0; i < 10; i++) {
-    		add(new MidWall(60 + (20 * i), d, false));
-    	}
     	lastBrick = new RightWall(260, d, false);
     	add(lastBrick);
+    	for (int i = 0; i < 10; i++) {
+    		if (rand.nextInt(40) == 19) add(new MidWall(60 + (i * 20), d, false));
+    	}    	
     	if (rand.nextInt(5 + ((int) difficulty / 50)) == 4) { 
     		addSingleLedge(d);
     		addedSingle = true;
@@ -238,20 +280,18 @@ public class GameScreen implements Screen{
     private void addSingleLedge(double y) {
     	int ledge = rand.nextInt(12);
     	switch (ledge) {
-    	case 0: {
-    		add(new LeftWall(40, y, true));
-    		break;
+	    	case 0: {
+	    		add(new LeftWall(40, y, true));
+	    		break;
+	    	}
+	    	case 11: {
+	    		add(new RightWall(260, y, true));
+	    		break;
+	    	}
+	    	default: {
+	    		add(new MidWall(40 + (ledge * 20), y, true));    		
+	    	}    			
     	}
-    	case 11: {
-    		add(new RightWall(260, y, true));
-    		break;
-    	}
-    	default: {
-    		add(new MidWall(40 + (ledge * 20), y, true));    		
-    	}
-    			
-    	}
-
     }
     
     private void addDoubleLedge(double y) {

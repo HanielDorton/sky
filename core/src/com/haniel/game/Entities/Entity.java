@@ -28,7 +28,7 @@ public abstract class Entity {
 	protected static final Texture grassTexture = new Texture(Gdx.files.internal("grassMid.png"));
 	
 	//Building
-	protected static final Texture blankWallTexture = new Texture(Gdx.files.internal("houseDark.png"));
+	
 	protected static final Texture blankWallTexture2 = new Texture(Gdx.files.internal("houseDarkAlt.png"));
 	protected static final Texture blankWallTexture3 = new Texture(Gdx.files.internal("houseDarkAlt2.png"));
 	protected static final Texture midLedgeTexture = new Texture(Gdx.files.internal("houseDarkLedge.png"));
