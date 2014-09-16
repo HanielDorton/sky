@@ -86,4 +86,10 @@ public abstract class Background {
 		if (this.y + this.height < 0) remove();
 		
 	}
+	public static void dispose() {
+		towerTexture.dispose();
+		fieldTexture.dispose();
+		starTexture.dispose();
+		moonTexture.dispose();
+	}
 }

@@ -2,7 +2,7 @@ package com.haniel.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -24,17 +24,20 @@ public class MenuScreen implements Screen{
 	private Label title;
 	private TextButton buttonPlay;
 	private TextureAtlas atlas;
-	private Music backgroundMusic;
+	//private Music backgroundMusic;
+	public AssetManager assetmanager;
 	
 	public MenuScreen(final Sky gam, OrthographicCamera camera) {
 		this.camera = camera;
 		this.game = gam;
         camera.setToOrtho(true, 320, 480);
+        
 		
 	}
 
 	@Override
 	public void render(float delta) {
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0, .9f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
@@ -70,8 +73,8 @@ public class MenuScreen implements Screen{
 		buttonPlay = new TextButton("Start Game", skin);
 		buttonPlay.addListener(new ChangeListener() {
 			public void changed(ChangeEvent event, Actor actor) {
+				stage.dispose();
 				game.setScreen(new GameScreen(game, camera));
-	            dispose();				
 			}
 		});
 		

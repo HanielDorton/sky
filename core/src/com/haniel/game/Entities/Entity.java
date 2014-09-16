@@ -22,7 +22,7 @@ public abstract class Entity {
 	protected static final Texture playerTexture = new Texture(Gdx.files.internal("alienPink.png"));
 	protected static final Texture playerJumpRightTexture = new Texture(Gdx.files.internal("alienPink_jumpRight.png"));
 	protected static final Texture playerJumpLeftTexture = new Texture(Gdx.files.internal("alienPink_jumpLeft.png"));
-	protected static final Sound jumpSound = Gdx.audio.newSound(Gdx.files.internal("phaseJump2.ogg"));
+	public static final Sound jumpSound = Gdx.audio.newSound(Gdx.files.internal("phaseJump2.ogg"));
 	
 	//World
 	protected static final Texture grassTexture = new Texture(Gdx.files.internal("grassMid.png"));
@@ -115,4 +115,19 @@ public abstract class Entity {
 		return solid;
 	}
 
+	public static void dispose() {
+		playerTexture.dispose();
+		playerJumpRightTexture.dispose();
+		playerJumpLeftTexture.dispose();
+		jumpSound.dispose();
+		grassTexture.dispose();
+		moonTexture.dispose();
+		blankWallTexture2.dispose();
+		blankWallTexture3.dispose();
+		midLedgeTexture.dispose();
+		leftLedgeTexture.dispose();
+		rightLedgeTexture.dispose();
+		blankRightWallTexture.dispose();
+		blankLeftWallTexture.dispose();
+	}
 }

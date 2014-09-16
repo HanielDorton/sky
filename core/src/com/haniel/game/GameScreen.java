@@ -57,12 +57,13 @@ public class GameScreen implements Screen{
     	this.game = gam;
     	this.camera = camera;
     	this.player  = new Player(this, camera);    	
-        camera.setToOrtho(true, 320, 480);
+        camera.setToOrtho(false, 320, 480);
         createStage();
   
 	}
 
 	public void render(float delta) {
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0, green, blue, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.update();
@@ -82,7 +83,6 @@ public class GameScreen implements Screen{
 		continueBuilding();
 		if (blue > 0) updateColors();
 		levelLogic();
-		System.out.println(backgrounds.size());
 	}
 
 	public void show() {
@@ -111,12 +111,15 @@ public class GameScreen implements Screen{
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
+		backgroundMusic.dispose();		
+		alienMusic.dispose();
+		entities.clear();
+		backgrounds.clear();
+		tempBackgrounds.clear();
 	}
 	
 	public void resize(int width, int height) {
-	    camera.setToOrtho(false, width, height);
+	    //camera.setToOrtho(false, width, height);
 	}
 	
 	private void drawText() {
@@ -124,6 +127,8 @@ public class GameScreen implements Screen{
 	}
 	
 	public void death() {
+		dispose();
+		game.setScreen(new MenuScreen(game, camera));
 		//game.setScreen(new HighScoresScreen(game, camera));
 	}
 	
@@ -242,7 +247,7 @@ public class GameScreen implements Screen{
 	}
 	
 	private void drawEntities() {
-		Iterator<Entity> entityIterator = entities.iterator();
+		Iterator<Entity> entityIterator	= entities.iterator();
     	while (entityIterator.hasNext()) {
     		Entity e = entityIterator.next();
     		Sky.batch.draw(e.getSprite(), (float) e.getX(), (float) e.getY());

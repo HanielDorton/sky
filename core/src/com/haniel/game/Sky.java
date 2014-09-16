@@ -4,6 +4,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.haniel.game.Backgrounds.Background;
+import com.haniel.game.Entities.Entity;
 
 
 public class Sky extends Game {
@@ -28,7 +30,10 @@ public class Sky extends Game {
 	}
 	
     public void dispose() {
-        batch.dispose();
-        font.dispose();
+       batch.dispose();
+       font.dispose();
+       Background.dispose();
+	   Entity.dispose();
+	   //MenuScreen.dispose();
     }
 }
