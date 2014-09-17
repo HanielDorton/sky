@@ -13,9 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.haniel.game.Google.ActionResolver;
-
-public class MenuScreen implements Screen{
-	
+public class HighScoresScreen implements Screen{
 	OrthographicCamera camera;
 	final Sky game;
 	private Stage stage;
@@ -24,14 +22,16 @@ public class MenuScreen implements Screen{
 	private Label title;
 	private TextButton buttonPlay, buttonScores, buttonAchievements;
 	private TextureAtlas atlas;
+	private float score;
 	private ActionResolver actionResolver;
 	
-	
-	public MenuScreen(final Sky gam, OrthographicCamera camera, ActionResolver actionResolve) {
+	public HighScoresScreen(final Sky gam, OrthographicCamera camera, float score, ActionResolver actionResolve) {
 		this.camera = camera;
 		this.game = gam;
+		this.score = score;
 		this.actionResolver = actionResolve;
-        camera.setToOrtho(true, 320, 480);      
+        camera.setToOrtho(true, 320, 480);
+        
 		
 	}
 
@@ -47,6 +47,7 @@ public class MenuScreen implements Screen{
         Sky.batch.end();
     	stage.act(Gdx.graphics.getDeltaTime());
     	stage.draw();
+		
 	}
 
 	@Override
@@ -57,6 +58,18 @@ public class MenuScreen implements Screen{
 
 	@Override
 	public void show() {
+		
+		if (actionResolver.getSignedInGPGS()) {
+			 actionResolver.submitScoreGPGS(score*100);
+			 /*
+			 if (score >= 20) game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQAQ");
+			 if (score >= 40) game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQAg");
+			 if (score >= 100) game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQAw");
+			 if (score >= 150) game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQBA");
+			 if (score >= 200) game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQBQ");
+			 */
+		}
+		
 		atlas = new TextureAtlas("uiskin.atlas");
 		skin = new Skin(Gdx.files.internal("uiskin.json"), atlas);
 		stage = new Stage();
@@ -65,8 +78,8 @@ public class MenuScreen implements Screen{
 		table.setBounds(0, 0, stage.getWidth(), stage.getHeight());
 		Gdx.input.setInputProcessor(stage);
 		
-		title =new Label("How high can you go?", skin);
-		buttonPlay = new TextButton("Start Game", skin);
+		title =new Label("Score: " + score + " Meters!", skin);
+		buttonPlay = new TextButton("Retry", skin);
 		buttonPlay.addListener(new ChangeListener() {
 			public void changed(ChangeEvent event, Actor actor) {
 				stage.dispose();
@@ -99,6 +112,7 @@ public class MenuScreen implements Screen{
 			table.row();
 		}
 		
+		
 	}
 
 	@Override
@@ -121,7 +135,7 @@ public class MenuScreen implements Screen{
 
 	@Override
 	public void dispose() {
-		stage.dispose();		
+		// TODO Auto-generated method stub
+		
 	}
-
 }

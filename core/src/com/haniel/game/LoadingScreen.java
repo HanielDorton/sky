@@ -5,16 +5,13 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.haniel.game.Google.ActionResolver;
 
-public class MenuScreen implements Screen{
+public class LoadingScreen implements Screen{
 	
 	OrthographicCamera camera;
 	final Sky game;
@@ -22,17 +19,13 @@ public class MenuScreen implements Screen{
 	private Skin skin;
 	private Table table;
 	private Label title;
-	private TextButton buttonPlay, buttonScores, buttonAchievements;
 	private TextureAtlas atlas;
 	private ActionResolver actionResolver;
 	
-	
-	public MenuScreen(final Sky gam, OrthographicCamera camera, ActionResolver actionResolve) {
+	public LoadingScreen(final Sky gam, OrthographicCamera camera, ActionResolver actionResolve){
 		this.camera = camera;
 		this.game = gam;
 		this.actionResolver = actionResolve;
-        camera.setToOrtho(true, 320, 480);      
-		
 	}
 
 	@Override
@@ -47,6 +40,12 @@ public class MenuScreen implements Screen{
         Sky.batch.end();
     	stage.act(Gdx.graphics.getDeltaTime());
     	stage.draw();
+        Assets.update();
+        if(Assets.manager.getProgress()==1) {
+        	stage.dispose();
+			game.setScreen(new MenuScreen(game, camera, actionResolver));
+        }
+		
 	}
 
 	@Override
@@ -57,6 +56,8 @@ public class MenuScreen implements Screen{
 
 	@Override
 	public void show() {
+		Assets.manager.clear(); 
+		Assets.queueLoading();
 		atlas = new TextureAtlas("uiskin.atlas");
 		skin = new Skin(Gdx.files.internal("uiskin.json"), atlas);
 		stage = new Stage();
@@ -64,40 +65,8 @@ public class MenuScreen implements Screen{
 		stage.addActor(table);
 		table.setBounds(0, 0, stage.getWidth(), stage.getHeight());
 		Gdx.input.setInputProcessor(stage);
-		
-		title =new Label("How high can you go?", skin);
-		buttonPlay = new TextButton("Start Game", skin);
-		buttonPlay.addListener(new ChangeListener() {
-			public void changed(ChangeEvent event, Actor actor) {
-				stage.dispose();
-				game.setScreen(new GameScreen(game, camera, actionResolver));
-			}
-		});
-		
-		buttonScores = new TextButton("High Scores", skin);
-		buttonScores.addListener(new ChangeListener() {
-			public void changed(ChangeEvent event, Actor actor) {
-				game.actionResolver.getLeaderboardGPGS();
-			}
-		});
-		
-		buttonAchievements = new TextButton("Achievements", skin);
-		buttonAchievements.addListener(new ChangeListener() {
-			public void changed(ChangeEvent event, Actor actor) {
-				game.actionResolver.getAchievementsGPGS();
-			}
-		});
-		
+		title =new Label("Loading Assets", skin);
 		table.add(title).padBottom(30);
-		table.row();
-		table.add(buttonPlay).padBottom(10).width(200).height(40);
-		table.row();
-		if (actionResolver.getSignedInGPGS()) {
-			table.add(buttonScores).padBottom(10).width(200).height(40);
-			table.row();
-			table.add(buttonAchievements).padBottom(10).width(200).height(40);
-			table.row();
-		}
 		
 	}
 
@@ -121,7 +90,9 @@ public class MenuScreen implements Screen{
 
 	@Override
 	public void dispose() {
-		stage.dispose();		
+		// TODO Auto-generated method stub
+		stage.dispose();
+		
 	}
 
 }

@@ -3,6 +3,7 @@ package com.haniel.game.desktop;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.haniel.game.Sky;
+import com.haniel.game.Google.DesktopActionResolver;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
@@ -10,6 +11,6 @@ public class DesktopLauncher {
 	      config.title = "Sky";
 	      config.width = 320;
 	      config.height = 480;
-		new LwjglApplication(new Sky(), config);
+		new LwjglApplication(new Sky(new DesktopActionResolver()), config);
 	}
 }

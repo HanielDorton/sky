@@ -4,21 +4,27 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.haniel.game.Backgrounds.Background;
-import com.haniel.game.Entities.Entity;
+import com.haniel.game.Google.ActionResolver;
+
 
 
 public class Sky extends Game {
 	public static SpriteBatch batch;
     public BitmapFont font;
 	OrthographicCamera camera;
+	public ActionResolver actionResolver;
+	
+	public Sky(ActionResolver actionResolve) {
+        this.actionResolver = actionResolve;
+    }
 	
 	@Override
 	public void create () {
+
 		camera = new OrthographicCamera();
 		batch = new SpriteBatch();
         font = new BitmapFont();
-		this.setScreen(new MenuScreen(this, camera));
+        this.setScreen(new LoadingScreen(this, camera, actionResolver));
 	}
 
 	@Override
@@ -30,10 +36,7 @@ public class Sky extends Game {
 	}
 	
     public void dispose() {
-       batch.dispose();
-       font.dispose();
-       Background.dispose();
-	   Entity.dispose();
-	   //MenuScreen.dispose();
+        batch.dispose();
+        font.dispose();
     }
 }

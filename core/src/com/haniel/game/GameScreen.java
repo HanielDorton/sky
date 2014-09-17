@@ -21,6 +21,7 @@ import com.haniel.game.Entities.LeftWall;
 import com.haniel.game.Entities.MidWall;
 import com.haniel.game.Entities.Player;
 import com.haniel.game.Entities.RightWall;
+import com.haniel.game.Google.ActionResolver;
 
 
 public class GameScreen implements Screen{
@@ -51,11 +52,17 @@ public class GameScreen implements Screen{
     public boolean debug = false;
     private boolean addedFirstMusic = false;
     private boolean playedAlien = false;
-    private Music alienMusic = Gdx.audio.newMusic(Gdx.files.internal("ObservingTheStar.ogg"));
+    private boolean achieve20 = false;
+    private boolean achieve40 = false;
+    private boolean achieve100 = false;
+    private boolean achieve150 = false;
+    private boolean achieve200 = false;
+	private ActionResolver actionResolver;
 	
-	public GameScreen(final Sky gam, OrthographicCamera camera) {
+	public GameScreen(final Sky gam, OrthographicCamera camera, ActionResolver actionResolve) {
     	this.game = gam;
     	this.camera = camera;
+    	this.actionResolver = actionResolve;
     	this.player  = new Player(this, camera);    	
         camera.setToOrtho(false, 320, 480);
         createStage();
@@ -83,10 +90,53 @@ public class GameScreen implements Screen{
 		continueBuilding();
 		if (blue > 0) updateColors();
 		levelLogic();
+		checkAchievements();
+	}
+
+	private void checkAchievements() {
+		if (actionResolver.getSignedInGPGS()) {
+			if (!achieve20) {
+				if ((score / 100) >= 20) {
+					game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQAQ");
+					achieve20 = true;
+				}				
+			}
+			else if (!achieve40) {
+				if ((score / 100) >= 40) {
+					game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQAg");
+					achieve40 = true;
+				}				
+			}
+			else if (!achieve100) {
+				if ((score / 100) >= 100) {
+					game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQAw");
+					achieve100 = true;
+				}				
+			}
+			else if (!achieve150) {
+				if ((score / 100) >= 150) {
+					game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQBA");
+					achieve150 = true;
+				}				
+			}
+			else if (!achieve200) {
+				if ((score / 100) >= 200) {
+					game.actionResolver.unlockAchievementGPGS("CgkI4qvY37UcEAIQBQ");
+					achieve200 = true;
+				}				
+			}
+			
+			
+			
+			
+			
+			
+		}
+		
 	}
 
 	public void show() {
-		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("LittlePeopleAtWork.mp3"));
+		backgroundMusic = Assets.manager.get("LittlePeopleAtWork.mp3", Music.class);
 		backgroundMusic.setVolume(.5f);
 		backgroundMusic.play();
 		
@@ -111,15 +161,12 @@ public class GameScreen implements Screen{
 
 	@Override
 	public void dispose() {
-		backgroundMusic.dispose();		
-		alienMusic.dispose();
 		entities.clear();
 		backgrounds.clear();
 		tempBackgrounds.clear();
 	}
 	
 	public void resize(int width, int height) {
-	    //camera.setToOrtho(false, width, height);
 	}
 	
 	private void drawText() {
@@ -127,9 +174,9 @@ public class GameScreen implements Screen{
 	}
 	
 	public void death() {
-		dispose();
-		game.setScreen(new MenuScreen(game, camera));
-		//game.setScreen(new HighScoresScreen(game, camera));
+		backgroundMusic.stop();
+		game.setScreen(new MenuScreen(game, camera, actionResolver));
+		game.setScreen(new HighScoresScreen(game, camera, score/100, actionResolver));
 	}
 	
 	private void levelLogic() {
@@ -148,7 +195,7 @@ public class GameScreen implements Screen{
 		if (!addedFirstMusic) {
 			if ((score / 100) > 170) {
 				addedFirstMusic = true;
-				backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("WorldTravel_0.mp3"));
+				backgroundMusic = Assets.manager.get("WorldTravel_0.mp3", Music.class);
 				backgroundMusic.setVolume(.1f);
 				backgroundMusic.play();
 				add(new Moon(285, 480, 5));
@@ -156,9 +203,10 @@ public class GameScreen implements Screen{
 		}
 		if (!playedAlien) {
 			if ((score / 100) > 350) {
-				alienMusic.setLooping(true);
-				alienMusic.setVolume(.5f);
-				alienMusic.play();
+				backgroundMusic = Assets.manager.get("ObservingTheStar.ogg", Music.class);
+				backgroundMusic.setLooping(true);
+				backgroundMusic.setVolume(.5f);
+				backgroundMusic.play();
 				playedAlien = true;				
 			}
 		}

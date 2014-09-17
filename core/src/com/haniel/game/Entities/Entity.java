@@ -7,6 +7,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
+import com.haniel.game.Assets;
 
 public abstract class Entity {
 	
@@ -19,24 +20,24 @@ public abstract class Entity {
 	protected static final Random rand = new Random();
 	
 	//Player
-	protected static final Texture playerTexture = new Texture(Gdx.files.internal("alienPink.png"));
-	protected static final Texture playerJumpRightTexture = new Texture(Gdx.files.internal("alienPink_jumpRight.png"));
-	protected static final Texture playerJumpLeftTexture = new Texture(Gdx.files.internal("alienPink_jumpLeft.png"));
-	public static final Sound jumpSound = Gdx.audio.newSound(Gdx.files.internal("phaseJump2.ogg"));
+	protected Texture playerTexture = Assets.manager.get("alienPink.png", Texture.class);
+	protected Texture playerJumpRightTexture = Assets.manager.get("alienPink_jumpRight.png", Texture.class);
+	protected Texture playerJumpLeftTexture = Assets.manager.get("alienPink_jumpLeft.png", Texture.class);
+	public Sound jumpSound = Assets.manager.get("phaseJump2.ogg",Sound.class);
 	
 	//World
-	protected static final Texture grassTexture = new Texture(Gdx.files.internal("grassMid.png"));
-	protected static final Texture moonTexture = new Texture(Gdx.files.internal("Moon.png"));
+	protected Texture grassTexture = Assets.manager.get("grassMid.png", Texture.class);
+	protected Texture moonTexture = Assets.manager.get("Moon.png", Texture.class);
 	
 	//Building
 	
-	protected static final Texture blankWallTexture2 = new Texture(Gdx.files.internal("houseDarkAlt.png"));
-	protected static final Texture blankWallTexture3 = new Texture(Gdx.files.internal("houseDarkAlt2.png"));
-	protected static final Texture midLedgeTexture = new Texture(Gdx.files.internal("houseDarkLedge.png"));
-	protected static final Texture leftLedgeTexture = new Texture(Gdx.files.internal("houseDarkLedgeLeft.png"));
-	protected static final Texture rightLedgeTexture = new Texture(Gdx.files.internal("houseDarkLedgeRight.png"));
-	protected static final Texture blankRightWallTexture = new Texture(Gdx.files.internal("houseDarkMidRight.png"));
-	protected static final Texture blankLeftWallTexture = new Texture(Gdx.files.internal("houseDarkMidLeft.png"));
+	protected Texture blankWallTexture2 = Assets.manager.get("houseDarkAlt.png", Texture.class);
+	protected Texture blankWallTexture3 = Assets.manager.get("houseDarkAlt2.png", Texture.class);
+	protected Texture midLedgeTexture = Assets.manager.get("houseDarkLedge.png", Texture.class);
+	protected Texture leftLedgeTexture = Assets.manager.get("houseDarkLedgeLeft.png", Texture.class);
+	protected Texture rightLedgeTexture = Assets.manager.get("houseDarkLedgeRight.png", Texture.class);
+	protected Texture blankRightWallTexture = Assets.manager.get("houseDarkMidRight.png", Texture.class);
+	protected Texture blankLeftWallTexture = Assets.manager.get("houseDarkMidLeft.png", Texture.class);
 	
 	
 	public Entity() {
@@ -116,18 +117,5 @@ public abstract class Entity {
 	}
 
 	public static void dispose() {
-		playerTexture.dispose();
-		playerJumpRightTexture.dispose();
-		playerJumpLeftTexture.dispose();
-		jumpSound.dispose();
-		grassTexture.dispose();
-		moonTexture.dispose();
-		blankWallTexture2.dispose();
-		blankWallTexture3.dispose();
-		midLedgeTexture.dispose();
-		leftLedgeTexture.dispose();
-		rightLedgeTexture.dispose();
-		blankRightWallTexture.dispose();
-		blankLeftWallTexture.dispose();
 	}
 }

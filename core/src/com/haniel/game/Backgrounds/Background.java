@@ -5,6 +5,7 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.haniel.game.Assets;
 
 public abstract class Background {
 	protected double x, y;
@@ -14,10 +15,10 @@ public abstract class Background {
 	protected double moveY;
 	protected int height;
 	
-	protected static final Texture towerTexture = new Texture(Gdx.files.internal("tower.png"));
-	protected static final Texture fieldTexture = new Texture(Gdx.files.internal("field.png"));
-	protected static final Texture starTexture = new Texture(Gdx.files.internal("star.png"));
-	protected static final Texture moonTexture = new Texture(Gdx.files.internal("Moon.png"));
+	protected Texture towerTexture = Assets.manager.get("tower.png", Texture.class);
+	protected Texture fieldTexture = Assets.manager.get("field.png", Texture.class);
+	protected Texture starTexture = Assets.manager.get("star.png", Texture.class);
+	protected Texture moonTexture = Assets.manager.get("Moon.png", Texture.class);
 	
 	public Background(double x, double y, double moveY) {
 		this.x = x;
@@ -87,9 +88,5 @@ public abstract class Background {
 		
 	}
 	public static void dispose() {
-		towerTexture.dispose();
-		fieldTexture.dispose();
-		starTexture.dispose();
-		moonTexture.dispose();
 	}
 }
